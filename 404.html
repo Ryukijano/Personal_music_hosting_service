@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Not Found - Personal Music Collection</title>
+    <meta name="description" content="The page you're looking for doesn't exist. Return to your personal music collection.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
     <style>
         * {
             margin: 0;
@@ -66,11 +68,11 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>404</h1>
+    <main class="container" role="main">
+        <h1 aria-label="Error 404">404</h1>
         <h2>Oops! Page Not Found</h2>
         <p>The page you're looking for doesn't exist. Let's get you back to your music collection!</p>
-        <a href="/" class="back-link">🎵 Back to Music</a>
-    </div>
+        <a href="/" class="back-link" role="button" aria-label="Return to music collection homepage">🎵 Back to Music</a>
+    </main>
 </body>
 </html>

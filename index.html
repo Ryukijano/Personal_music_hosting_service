@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Music Hosting Service</title>
+    
+    <!-- SEO and Social Media Meta Tags -->
+    <meta name="description" content="Access and play your personal music collection online with this elegant web player. Featuring 9 tracks with responsive design and smart audio controls.">
+    <meta name="keywords" content="music, player, personal, collection, audio, streaming, web player">
+    <meta name="author" content="Personal Music Collection">
+    
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="Personal Music Hosting Service">
+    <meta property="og:description" content="Access and play your personal music collection online with this elegant web player.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ryukijano.github.io/Personal_music_hosting_service/">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Personal Music Hosting Service">
+    <meta name="twitter:description" content="Access and play your personal music collection online with this elegant web player.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
     <style>
         * {
             margin: 0;
@@ -86,21 +106,15 @@
             border-radius: 5px;
             outline: none;
             height: 40px;
+            transition: box-shadow 0.2s ease;
         }
 
-        audio::-webkit-media-controls-panel {
-            background-color: #f8f9fa;
-            border-radius: 5px;
+        audio:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
 
-        audio::-webkit-media-controls-play-button,
-        audio::-webkit-media-controls-pause-button {
-            background-color: #667eea;
-            border-radius: 50%;
-        }
-
-        audio::-webkit-media-controls-volume-slider {
-            background-color: #667eea;
+        audio[aria-selected="true"] {
+            box-shadow: 0 0 0 2px #667eea;
         }
 
         .no-music {
@@ -108,6 +122,26 @@
             color: #718096;
             font-style: italic;
             padding: 40px;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.9em;
+            margin-top: 8px;
+            padding: 8px;
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            border-radius: 5px;
+        }
+
+        .loading-message {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-top: 8px;
+            padding: 8px;
+            background: #e6fffa;
+            border: 1px solid #9ae6b4;
+            border-radius: 5px;
         }
 
         .footer {
@@ -135,15 +169,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎵 Personal Music Collection</h1>
+        <header>
+            <h1>🎵 Personal Music Collection</h1>
+        </header>
         
-        <div id="musicList" class="music-list">
+        <main id="musicList" class="music-list" role="main" aria-label="Music Collection">
             <!-- Music items will be loaded here -->
-        </div>
+        </main>
         
-        <div class="footer">
+        <footer class="footer" role="contentinfo">
             <p>Welcome to your personal music hosting service! 🎶</p>
-        </div>
+        </footer>
     </div>
 
     <script>
@@ -168,18 +204,26 @@
         function createMusicItem(filename, index) {
             const title = formatTitle(filename);
             const audioPath = `source/${filename}`;
+            const audioId = `audio-${index}`;
             
             return `
-                <div class="music-item">
-                    <div class="music-title">
-                        <div class="music-icon">♪</div>
+                <article class="music-item" role="region" aria-labelledby="title-${index}">
+                    <div class="music-title" id="title-${index}">
+                        <div class="music-icon" role="img" aria-label="Music note">♪</div>
                         ${title}
                     </div>
-                    <audio controls preload="metadata">
+                    <audio 
+                        id="${audioId}"
+                        controls 
+                        preload="none"
+                        aria-label="Audio player for ${title}"
+                        data-title="${title}">
                         <source src="${audioPath}" type="audio/mpeg">
-                        Your browser does not support the audio element.
+                        Your browser does not support the audio element. Please try a different browser or download the file directly.
                     </audio>
-                </div>
+                    <div id="error-${index}" class="error-message" style="display: none;" role="alert" aria-live="polite"></div>
+                    <div id="loading-${index}" class="loading-message" style="display: none;" aria-live="polite">Loading audio...</div>
+                </article>
             `;
         }
 
@@ -187,7 +231,7 @@
             const musicListContainer = document.getElementById('musicList');
             
             if (musicFiles.length === 0) {
-                musicListContainer.innerHTML = '<div class="no-music">No music files found.</div>';
+                musicListContainer.innerHTML = '<div class="no-music" role="status" aria-live="polite">No music files found.</div>';
                 return;
             }
 
@@ -196,12 +240,62 @@
                 .join('');
             
             musicListContainer.innerHTML = musicHTML;
+            
+            // Add error handling and loading states for audio elements
+            addAudioEventHandlers();
+        }
+
+        function addAudioEventHandlers() {
+            const audios = document.querySelectorAll('audio');
+            
+            audios.forEach((audio, index) => {
+                const errorDiv = document.getElementById(`error-${index}`);
+                const loadingDiv = document.getElementById(`loading-${index}`);
+                
+                // Show loading when starting to load
+                audio.addEventListener('loadstart', function() {
+                    if (loadingDiv) {
+                        loadingDiv.style.display = 'block';
+                        loadingDiv.textContent = 'Loading audio...';
+                    }
+                });
+                
+                // Hide loading when metadata is loaded
+                audio.addEventListener('loadedmetadata', function() {
+                    if (loadingDiv) {
+                        loadingDiv.style.display = 'none';
+                    }
+                });
+                
+                // Handle errors
+                audio.addEventListener('error', function(e) {
+                    console.error('Audio loading error:', e);
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                        errorDiv.textContent = `Failed to load "${audio.dataset.title}". The file might be missing or corrupted.`;
+                        errorDiv.setAttribute('aria-live', 'assertive');
+                    }
+                    if (loadingDiv) {
+                        loadingDiv.style.display = 'none';
+                    }
+                });
+                
+                // Handle successful loading
+                audio.addEventListener('canplaythrough', function() {
+                    if (loadingDiv) {
+                        loadingDiv.style.display = 'none';
+                    }
+                    if (errorDiv) {
+                        errorDiv.style.display = 'none';
+                    }
+                });
+            });
         }
 
         // Load the music list when the page loads
         document.addEventListener('DOMContentLoaded', loadMusicList);
 
-        // Add some interactive features
+        // Add enhanced interactive features
         document.addEventListener('DOMContentLoaded', function() {
             // Pause other audio elements when one starts playing
             document.addEventListener('play', function(e) {
@@ -212,6 +306,50 @@
                     }
                 });
             }, true);
+            
+            // Add keyboard navigation support
+            document.addEventListener('keydown', function(e) {
+                const currentAudio = document.querySelector('audio:focus');
+                if (!currentAudio) return;
+                
+                switch(e.key) {
+                    case ' ': // Spacebar to play/pause
+                        e.preventDefault();
+                        if (currentAudio.paused) {
+                            currentAudio.play().catch(err => console.error('Play failed:', err));
+                        } else {
+                            currentAudio.pause();
+                        }
+                        break;
+                    case 'ArrowUp':
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        const allAudios = Array.from(document.querySelectorAll('audio'));
+                        const currentIndex = allAudios.indexOf(currentAudio);
+                        let nextIndex;
+                        
+                        if (e.key === 'ArrowUp') {
+                            nextIndex = currentIndex > 0 ? currentIndex - 1 : allAudios.length - 1;
+                        } else {
+                            nextIndex = currentIndex < allAudios.length - 1 ? currentIndex + 1 : 0;
+                        }
+                        
+                        allAudios[nextIndex].focus();
+                        break;
+                }
+            });
+            
+            // Improve focus management
+            const audios = document.querySelectorAll('audio');
+            audios.forEach(audio => {
+                audio.addEventListener('focus', function() {
+                    this.setAttribute('aria-selected', 'true');
+                });
+                
+                audio.addEventListener('blur', function() {
+                    this.removeAttribute('aria-selected');
+                });
+            });
         });
     </script>
 </body>
