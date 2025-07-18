@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Music Hosting Service</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .music-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background: #ffffff;
+        }
+
+        .music-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .music-icon {
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        audio::-webkit-media-controls-panel {
+            background-color: #667eea;
+        }
+
+        .no-music {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .music-title {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Personal Music Collection</h1>
+        
+        <div id="musicList" class="music-list">
+            <!-- Music items will be loaded here -->
+        </div>
+        
+        <div class="footer">
+            <p>Welcome to your personal music hosting service! 🎶</p>
+        </div>
+    </div>
+
+    <script>
+        // List of music files in the source directory
+        const musicFiles = [
+            'Arrival.mp3',
+            'Gunfire ( Remix).mp3',
+            'Kill You With My Vibe.mp3',
+            'Know me project..mp3',
+            'Love Me Again.mp3',
+            'Run This Town.mp3',
+            'Tonight.mp3',
+            'Words (Instrumental).mp3',
+            'Words.mp3'
+        ];
+
+        function formatTitle(filename) {
+            // Remove .mp3 extension and clean up the title
+            return filename.replace('.mp3', '').trim();
+        }
+
+        function createMusicItem(filename, index) {
+            const title = formatTitle(filename);
+            const audioPath = `source/${filename}`;
+            
+            return `
+                <div class="music-item">
+                    <div class="music-title">
+                        <div class="music-icon">♪</div>
+                        ${title}
+                    </div>
+                    <audio controls preload="none">
+                        <source src="${audioPath}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            `;
+        }
+
+        function loadMusicList() {
+            const musicListContainer = document.getElementById('musicList');
+            
+            if (musicFiles.length === 0) {
+                musicListContainer.innerHTML = '<div class="no-music">No music files found.</div>';
+                return;
+            }
+
+            const musicHTML = musicFiles
+                .map((filename, index) => createMusicItem(filename, index))
+                .join('');
+            
+            musicListContainer.innerHTML = musicHTML;
+        }
+
+        // Load the music list when the page loads
+        document.addEventListener('DOMContentLoaded', loadMusicList);
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pause other audio elements when one starts playing
+            document.addEventListener('play', function(e) {
+                const audios = document.querySelectorAll('audio');
+                audios.forEach(audio => {
+                    if (audio !== e.target) {
+                        audio.pause();
+                    }
+                });
+            }, true);
+        });
+    </script>
+</body>
+</html>
