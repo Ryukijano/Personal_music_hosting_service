@@ -85,9 +85,21 @@
             margin-top: 10px;
             border-radius: 5px;
             outline: none;
+            height: 40px;
         }
 
         audio::-webkit-media-controls-panel {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        audio::-webkit-media-controls-play-button,
+        audio::-webkit-media-controls-pause-button {
+            background-color: #667eea;
+            border-radius: 50%;
+        }
+
+        audio::-webkit-media-controls-volume-slider {
             background-color: #667eea;
         }
 
@@ -163,7 +175,7 @@
                         <div class="music-icon">♪</div>
                         ${title}
                     </div>
-                    <audio controls preload="none">
+                    <audio controls preload="metadata">
                         <source src="${audioPath}" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
