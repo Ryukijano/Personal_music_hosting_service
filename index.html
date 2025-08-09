@@ -215,7 +215,7 @@
                     <audio 
                         id="${audioId}"
                         controls 
-                        preload="none"
+                        preload="metadata"
                         aria-label="Audio player for ${title}"
                         data-title="${title}">
                         <source src="${audioPath}" type="audio/mpeg">
@@ -247,13 +247,17 @@
 
         function addAudioEventHandlers() {
             const audios = document.querySelectorAll('audio');
+            console.log(`Found ${audios.length} audio elements`);
             
             audios.forEach((audio, index) => {
                 const errorDiv = document.getElementById(`error-${index}`);
                 const loadingDiv = document.getElementById(`loading-${index}`);
                 
+                console.log(`Setting up audio ${index}: ${audio.querySelector('source')?.src}`);
+                
                 // Show loading when starting to load
                 audio.addEventListener('loadstart', function() {
+                    console.log(`Audio ${index} started loading`);
                     if (loadingDiv) {
                         loadingDiv.style.display = 'block';
                         loadingDiv.textContent = 'Loading audio...';
@@ -262,6 +266,7 @@
                 
                 // Hide loading when metadata is loaded
                 audio.addEventListener('loadedmetadata', function() {
+                    console.log(`Audio ${index} metadata loaded`);
                     if (loadingDiv) {
                         loadingDiv.style.display = 'none';
                     }
@@ -269,7 +274,7 @@
                 
                 // Handle errors
                 audio.addEventListener('error', function(e) {
-                    console.error('Audio loading error:', e);
+                    console.error(`Audio ${index} loading error:`, e, 'Error code:', audio.error?.code, 'Error message:', audio.error?.message);
                     if (errorDiv) {
                         errorDiv.style.display = 'block';
                         errorDiv.textContent = `Failed to load "${audio.dataset.title}". The file might be missing or corrupted.`;
@@ -282,6 +287,7 @@
                 
                 // Handle successful loading
                 audio.addEventListener('canplaythrough', function() {
+                    console.log(`Audio ${index} can play through`);
                     if (loadingDiv) {
                         loadingDiv.style.display = 'none';
                     }
